@@ -151,3 +151,6 @@ TOURS_MERGED_CHOOSER_COLUMNS:
   - household_id
 MODE_CHOICE_LOGSUM_COLUMN_NAME: mode_choice_logsum
 
+# Walking limits may be infinite; preserve IEEE NaN/Inf semantics.
+compute_settings:
+  fastmath: false

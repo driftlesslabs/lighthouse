@@ -112,3 +112,7 @@ LOGSUM_CHOOSER_COLUMNS:
   - free_parking_at_work
 
 MODE_CHOICE_LOGSUM_COLUMN_NAME: mode_choice_logsum
+
+# Walking limits may be infinite; preserve IEEE NaN/Inf semantics.
+compute_settings:
+  fastmath: false

@@ -91,3 +91,53 @@ def test_unsorted_omx_ids_and_directional_periods(tmp_path, sharrow):
     wrapper = skim.wrap_3d("origin", "destination", "period")
     wrapper.set_df(frame)
     np.testing.assert_array_equal(wrapper["time"], [13010, 21020])
+
+
+@pytest.mark.parametrize("sharrow", [False, "require"])
+def test_school_bus_missing_distance_has_same_utility(tmp_path, sharrow):
+    from activitysim.core import simulate
+    from activitysim.core.configuration.logit import LogitComponentSettings
+    import xarray as xr
+
+    state = workflow.State.make_default(
+        configs_dir=ROOT / "model/configs",
+        data_dir=ROOT / "model/data",
+        output_dir=tmp_path / "output",
+        settings={"sharrow": sharrow},
+    )
+    state.filesystem.sharrow_cache_dir = tmp_path / "compiled"
+    # This specification has no spatial lookups; isolate expression semantics
+    # from skim loading, which is exercised by the shuffled-OMX test above.
+    state.set("skim_dataset", xr.Dataset())
+    settings = LogitComponentSettings.read_settings_file(
+        state.filesystem, "constraint_school_bus_availability.yaml"
+    )
+    coefficients = state.filesystem.read_model_coefficients(settings)
+    spec = simulate.eval_coefficients(
+        state, state.filesystem.read_model_spec(settings.SPEC), coefficients, None
+    )
+    people = pd.DataFrame(
+        {
+            "age": [18] * 4,
+            "school_segment": [0] * 4,
+            "distance_to_school": [np.nan, 1.0, 3.0, np.inf],
+            "home_is_urban": [False] * 4,
+            "home_is_rural": [False] * 4,
+            "auto_ownership": [1] * 4,
+            "num_workers": [1] * 4,
+        },
+        index=pd.Index([1, 2, 3, 4], name="person_id"),
+    )
+    logsums = simulate.simple_simulate_logsums(
+        state,
+        people,
+        spec,
+        nest_spec=None,
+        locals_d=settings.CONSTANTS,
+        trace_label="school_bus_nan_regression",
+        compute_settings=settings.compute_settings,
+    )
+    # Missing or infinite distance does not satisfy the within-radius term.
+    np.testing.assert_allclose(
+        logsums, np.logaddexp([0.0, -1.5, 0.0, 0.0], -0.05), rtol=1e-6, atol=1e-6
+    )
