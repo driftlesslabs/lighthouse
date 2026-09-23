@@ -16,6 +16,9 @@ that path. Input files do not need to be reordered or rewritten.
 
 ## Commands
 
+Lighthouse requires ActivitySim 1.6 or newer and Sharrow 2.16.2 or newer. The lockfile currently
+selects ActivitySim 1.6.0 and Sharrow 2.16.2.
+
 From the Lighthouse repository root, with the locked environment installed:
 
 ```sh
@@ -34,9 +37,9 @@ Outputs from both modes decode origins, destinations, and assigned locations bac
 IDs.
 
 `--ext extensions` is required for Lighthouse's constraints, telework components, and safe skim
-loading. The locked Sharrow 2.15 loader uses threaded Dask reads during realignment. Lighthouse's
-`skim_loading` extension limits Dask to one worker because concurrent PyTables/HDF5 reads can crash.
-This does not limit ActivitySim's worker processes or change compiled utility expressions.
+loading. The `skim_loading` extension retains the single-worker Dask guard introduced after
+concurrent PyTables/HDF5 reads crashed during realignment with Sharrow 2.15. This does not limit
+ActivitySim's worker processes or change compiled utility expressions.
 
 Destination **sampling** uses the reference evaluator in both modes: small differences in compiled
 cumulative probabilities can move a random draw across a sample boundary and change downstream
@@ -50,10 +53,10 @@ removes leading whitespace rejected by the CDAP expression compiler. Behavioral 
 unchanged.
 
 The documented `python uv-local` runner can replace `uv run --locked` for sibling-source
-development. Recent development versions support an additional trip-mode chunk budget in
-`model/configs_explicit_chunk`; add that directory before the other configs when using a compatible
-version. The locked ActivitySim 1.5.1 release rejects that trip-mode setting, so it is not in the
-base configuration or CI runs. The other existing component chunk settings remain in place.
+development. ActivitySim 1.6 supports the additional trip-mode chunk budget in
+`model/configs_explicit_chunk`; add that directory before the other configs to opt in. This setting
+was isolated because ActivitySim 1.5.1 rejected it. It remains optional and is not included in base
+configuration or CI runs. The other existing component chunk settings remain in place.
 
 ## Backend stability checks
 
@@ -87,9 +90,14 @@ modes. Model startup also exercises required compilation rather than allowing si
 
 ## Validation of this configuration
 
-Local validation with locked ActivitySim 1.5.1 and Sharrow 2.15.0 passed all 56 contract tests.
-Cold-cache, two-worker backend comparisons passed for both the 2,000-household and 10,000-household
-fixtures (seed 0). All non-logsum outputs matched exactly; the largest absolute logsum differences
-were approximately 2.44e-6 and 2.63e-6, respectively. The larger pair produced 27,049 tours and
-69,400 trips in each backend. The scheduled single-process pair is configured in CI but was not
-included in these local full-fixture comparisons.
+Before the dependency upgrade, local validation with locked ActivitySim 1.5.1 and Sharrow 2.15.0
+passed all 56 contract tests. Cold-cache, two-worker backend comparisons passed for both the
+2,000-household and 10,000-household fixtures (seed 0). All non-logsum outputs matched exactly; the
+largest absolute logsum differences were approximately 2.44e-6 and 2.63e-6, respectively. The larger
+pair produced 27,049 tours and 69,400 trips in each backend. The scheduled single-process pair is
+configured in CI but was not included in these local full-fixture comparisons.
+
+With ActivitySim 1.6.0 and Sharrow 2.16.2, all 56 contract tests passed again. The cold-cache,
+two-worker 2,000-household comparison (seed 0) also passed: every non-logsum attribute matched
+exactly, and the largest absolute logsum difference was approximately 2.44e-6. The larger and
+single-process fixtures were not rerun locally for this dependency upgrade.

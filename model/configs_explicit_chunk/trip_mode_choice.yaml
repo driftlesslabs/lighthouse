@@ -1,5 +1,5 @@
 ---
-# Requires ActivitySim development support for explicit trip-mode chunks.
+# Optional trip-mode chunk budget supported by ActivitySim 1.6 and newer.
 inherit_settings: true
 # Global chooser-row budget for the inner utility calculation. ActivitySim
 # divides absolute explicit chunks among active workers.
