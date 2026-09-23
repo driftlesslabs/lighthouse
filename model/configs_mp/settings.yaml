@@ -37,9 +37,10 @@ models:
   - compute_accessibility
   ### mp_households step
   - work_from_home
+  - constraint_can_travel_alone
+  - constraint_walk_ability
   - school_location
   - workplace_location
-  - constraint_can_travel_alone
   - constraint_school_bus_availability
   - auto_ownership_simulate
   - free_parking

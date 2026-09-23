@@ -135,6 +135,7 @@ preprocessor:
 #      - land_use
 # to reduce memory needs filter chooser table to these fields
 TOURS_MERGED_CHOOSER_COLUMNS:
+  - walk_distance_limit
   - hhsize
   - age
   - auto_ownership

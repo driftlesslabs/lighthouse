@@ -17,3 +17,5 @@ stop proximity to home (outbound),@df.outbound * _od_DIST,-0.3800,0,0,0,0,0,0,0,
 stop proximity to home (inbound),@~df.outbound * _od_DIST,-0.1500,0,0,0,0,0,0,0,0,0
 stop proximity to main destination (outbound),@df.outbound * _dp_DIST,-0.26,,,,,,,,,
 stop proximity to main destination (inbound),@~df.outbound * _od_DIST,0,,,,,,,,,
+Person walking distance limit,@(df.tour_mode_is_walk) & (od_skims['dist_nm'] > df.walk_distance_limit),-999,-999,-999,-999,-999,-999,-999,-999,-999,-999
+Person walking distance limit,@(df.tour_mode_is_walk) & (dp_skims['dist_nm'] > df.walk_distance_limit),-999,-999,-999,-999,-999,-999,-999,-999,-999,-999
