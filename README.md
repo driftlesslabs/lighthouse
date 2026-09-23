@@ -24,6 +24,17 @@ To run the model with test data, use the following command:
 uv run activitysim run -c model/configs_mp -c model/configs -d model/data -o model/output --ext extensions
 ```
 
+This runs with Sharrow off and original zone IDs. To require Sharrow, add its overlay first:
+
+```sh
+uv run --locked activitysim run -c model/configs_sh -c model/configs_mp -c model/configs \
+  -d model/data -o model/output_sharrow --ext extensions
+```
+
+The overlay enables both `sharrow: require` and `recode_pipeline_columns: true`. Keep them paired;
+the base configuration sets both to false. See [Execution backends](docs/execution-backends.md)
+for single-process runs, version-specific chunk settings, and stability testing.
+
 ## Developing with local ActivitySim and Sharrow checkouts
 
 Install Git, Python 3.10 or newer, and uv, with `git` and `uv` available on your PATH. From the
@@ -62,7 +73,7 @@ Use the runner instead of `uv run` for local source development:
 
 ```sh
 python uv-local python -c "import activitysim, sharrow; print(activitysim.__file__); print(sharrow.__file__)"
-python uv-local activitysim run -c model/configs_mp -c model/configs -d model/data -o model/output
+python uv-local activitysim run -c model/configs_mp -c model/configs -d model/data -o model/output --ext extensions
 python uv-local jupyter lab
 ```
 
@@ -94,15 +105,17 @@ python -m unittest discover -s tests -p test_developer_env.py
 
 ## Automated model tests
 
-GitHub Actions runs contract tests and the complete model on a fixed 2,000-household sample,
-using the released dependencies in `uv.lock`. Structural failures block the checks; changes
-in modeled distributions are reported for review. Weekly and manual runs also test a larger
-sample and single-process execution.
+GitHub Actions runs contract tests and the complete model with Sharrow off and required on a fixed
+2,000-household sample, using the released dependencies in `uv.lock`. Structural failures and changed
+decoded choices between backends block the checks; historical distribution changes remain advisory.
+Weekly and manual runs also compare a larger sample and single-process execution.
 
 ```sh
 uv sync --locked
 uv run --locked pytest tests -q
-uv run --locked python scripts/model_ci.py
+uv run --locked python scripts/model_ci.py --sharrow off --output model/output_ci_off
+uv run --locked python scripts/model_ci.py --sharrow require --output model/output_ci_sh \
+  --compare-to model/output_ci_off
 ```
 
 See [Model tests](docs/testing.md) for fixtures, output checks, diagnostics, and baseline updates.

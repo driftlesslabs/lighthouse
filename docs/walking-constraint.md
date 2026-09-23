@@ -9,8 +9,10 @@ partitions.
 The probabilities in `model/configs/constraint_walk_ability.yaml` are user-specified scenario
 assumptions, not estimated or behaviorally validated parameters:
 
-| Person | Probability of `can_walk_far = True` | | --- | ---: | | Under 65 | 100% | | 65–79 | 50% |
-| 80+ | 20% | | Adult (18+) with `can_travel_alone = False` | 0%, overriding age |
+- Under 65: 100% capability.
+- Ages 65–79: 50% capability.
+- Ages 80+: 20% capability.
+- Any adult (18+) with `can_travel_alone = False`: 0%, overriding age.
 
 The age probabilities apply to people who are not subject to the override. They are probabilities,
 not exact population quotas; final age-group capability shares can be lower because of the override.
@@ -75,14 +77,13 @@ assignments. Python lint/format checks and Markdown formatting also passed. The 
 passes strict yamllint; existing settings files retain pre-existing style violations (line lengths,
 indentation, and trailing whitespace).
 
-The installed released ActivitySim package cannot run this checkout's existing `explicit_chunk`
-settings; the full runs used the documented sibling-source development environment instead.
+Those original full runs used the sibling-source development environment. The subsequent backend
+compatibility fix moved the trip-mode `explicit_chunk` option into an optional development overlay,
+so the base model and Sharrow overlay can also run with the locked released dependencies.
 
-**Existing input alignment limitation:** `recode_pipeline_columns: true` causes the current runtime
-skim dictionary to use land-use row positions. The supplied land-use row order differs from the OMX
-zone order. For example, output zones 626 to 625 correspond to land-use positions 573 to 572, where
-the runtime reads `dist_nm = 0.134867` miles. The OMX mapping instead identifies positions 116 to
-125, with `dist_nm = 0.294674` miles. A traced household confirmed the former lookup. The new rule
-applies consistently to the runtime distances, but geographic validation requires resolving this
-pre-existing input/recoding mismatch. This change does not reorder inputs or alter global skim
-lookup behavior.
+**Zone alignment correction:** the mismatch found during the original walking-constraint validation
+was caused by running the non-Sharrow skim dictionary with recoded zone positions. Lighthouse now
+uses original zone IDs when Sharrow is off and enables recoding only in `configs_sh`. Both backends
+are checked against known OMX mappings and compared in CI; see
+[Execution backends](execution-backends.md). The former runtime-only walking validation is
+historical, not evidence that the old geographically misaligned configuration was correct.
