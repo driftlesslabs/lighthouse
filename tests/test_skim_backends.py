@@ -141,3 +141,20 @@ def test_school_bus_missing_distance_has_same_utility(tmp_path, sharrow):
     np.testing.assert_allclose(
         logsums, np.logaddexp([0.0, -1.5, 0.0, 0.0], -0.05), rtol=1e-6, atol=1e-6
     )
+
+
+def test_sampling_exclusions_leave_compiled_choices_enabled():
+    from activitysim.core.configuration.base import ComputeSettings
+
+    for name in [
+        "school_location",
+        "workplace_location",
+        "non_mandatory_tour_destination",
+        "atwork_subtour_destination",
+        "trip_destination",
+    ]:
+        settings = yaml.safe_load((ROOT / f"model/configs/{name}.yaml").read_text())
+        compute = ComputeSettings.model_validate(settings["compute_settings"])
+        assert compute.should_skip("sample")
+        assert not compute.should_skip("simulate")
+        assert not compute.should_skip("logsums")

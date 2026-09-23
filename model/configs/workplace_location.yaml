@@ -59,3 +59,9 @@ MODELED_SIZE_TABLE: workplace_modeled_size
 SAVED_SHADOW_PRICE_TABLE_NAME: workplace_shadow_prices.csv
 
 explicit_chunk: 0.1
+
+# Float32 compiled cumulative probabilities can move draws across a sample
+# boundary. Keep destination sampling identical; still compile logsums/simulation.
+compute_settings:
+  sharrow_skip:
+    sample: true

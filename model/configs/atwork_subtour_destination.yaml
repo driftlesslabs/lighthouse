@@ -25,3 +25,9 @@ DEST_CHOICE_LOGSUM_COLUMN_NAME: destination_logsum
 DEST_CHOICE_SAMPLE_TABLE_NAME: tour_destination_sample
 
 explicit_chunk: 50_000
+
+# Use identical sampled alternatives/probabilities with either backend.
+# Logsum and final-choice evaluation still use Sharrow when required.
+compute_settings:
+  sharrow_skip:
+    sample: true

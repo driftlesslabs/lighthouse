@@ -38,3 +38,9 @@ CLEANUP: false
 # fail_some_trips_for_testing: false
 
 explicit_chunk: 100_000
+
+# Use identical sampled alternatives/probabilities with either backend.
+# Logsum and final-choice evaluation still use Sharrow when required.
+compute_settings:
+  sharrow_skip:
+    sample: true
