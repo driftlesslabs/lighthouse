@@ -21,7 +21,9 @@ uv sync --locked
 To run the model with test data, use the following command:
 
 ```bash
-uv run activitysim run -c model/configs_mp -c model/configs -d model/data -o model/output --ext extensions
+# change directory to the model directory
+cd model
+uv run --project .. activitysim run -c configs_mp -c configs -d data -o output --ext extensions
 ```
 
 This runs with Sharrow off and original zone IDs. To require Sharrow, add its overlay first:
